@@ -140,6 +140,15 @@ Práctica 1
     color: grey;
 }
 
+.footer {
+	margin: 0px -10px -10px -10px; 
+	background-color: grey;
+	text-align: center;
+	width: 101%;
+	display: inline-block;
+}
+
+
 .secondary {
     display: inline-block;
     vertical-align: top;
