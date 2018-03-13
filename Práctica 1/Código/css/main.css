@@ -144,7 +144,7 @@ Práctica 1
 	margin: 0px -10px -10px -10px; 
 	background-color: grey;
 	text-align: center;
-	width: 101%;
+	width: calc(100% + 18px);
 	display: inline-block;
 }
 
