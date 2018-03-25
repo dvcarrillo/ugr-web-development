@@ -32,8 +32,8 @@ function showComments() {
     if (element.style.display == 'block') {
         element.style.display = 'none';
     } else {
-        element.style.display = 'block';
-    } 
+		element.style.display = 'block';
+	} 
 }
 
 // Thanks stackoverflow
@@ -110,4 +110,19 @@ function addComment() {
 		document.getElementById("email-field").value = "";
 		document.getElementById("comment-field").value = "";
 	}
+}
+
+//Censura las palabras prohibidas 
+function banWords(){
+
+	var comment = document.getElementById("comment-field").value;
+	var wordlist = comment
+	var bannedWords = ['hardcorewilldie', 'slatrax', 'bloureed', 'dvcarrillo', 'davidvargas996', 'daviliyo96', 'darksomefears']
+
+	wordlist.split(' ').forEach(element => {
+		if (bannedWords.includes(element)){
+			comment = comment.replace(element,'*'.repeat(element.length))
+		}
+	});
+	document.getElementById("comment-field").value = comment
 }
