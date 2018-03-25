@@ -44,25 +44,24 @@ function validateEmail(email) {
 
 // Comprueba que el comentario está correcto
 function isCommentOk(name, email, comment){
-	var error = ""
+	var error = "";
 	
 	if (name == ""){
-		error += "El nombre está vacio\n"
+		error += "El nombre está vacio\n";
 	}
 	if (!validateEmail(email)){
-		error += "e-mail inválido\n"
+		error += "e-mail inválido\n";
 	}
 	if (comment === ""){
-		error += "El comentario está vacio\n"
+		error += "El comentario está vacio\n";
 	}
 	if (error != ""){
-		alert(error)
-		return false
+		alert(error);
+		return false;
 	}
 	else{
-		return true
+		return true;
 	}
-
 }
 
 /* Inserta un nuevo comentario
@@ -74,8 +73,6 @@ function addComment() {
 	
 	if(isCommentOk(name, email, comment)){
 
-		num_comments++;
-		
 		// Guarda la fecha actual
 		const MONTH_NAMES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", 
 		"octubre", "noviembre", "diciembre"];
@@ -86,6 +83,8 @@ function addComment() {
 		var year = date.getFullYear();
 		var time = date.toTimeString().split(' ')[0];
 		var date_string = " A las " + time + " el " + day + " de " + month + " de " + year;
+
+		num_comments++;
 
 		// Actualiza la vista con un nuevo bloque de comentario
 		var new_comment =
@@ -116,13 +115,13 @@ function addComment() {
 function banWords(){
 
 	var comment = document.getElementById("comment-field").value;
-	var wordlist = comment
-	var bannedWords = ['hardcorewilldie', 'slatrax', 'bloureed', 'dvcarrillo', 'davidvargas996', 'daviliyo96', 'darksomefears']
+	var wordlist = comment;
+	var bannedWords = ['mierda', 'puta', 'gilipollas', 'subnormal'];
 
 	wordlist.split(' ').forEach(element => {
 		if (bannedWords.includes(element)){
-			comment = comment.replace(element,'*'.repeat(element.length))
+			comment = comment.replace(element,'*'.repeat(element.length));
 		}
 	});
-	document.getElementById("comment-field").value = comment
+	document.getElementById("comment-field").value = comment;
 }
