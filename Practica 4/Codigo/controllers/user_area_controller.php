@@ -219,15 +219,20 @@ class UserAreaController
         $modified_password = $_POST['password'];
         $modified_password_c = $_POST['confirm-password'];
 
+
         if ($modified_avatar == "" || !isset($_FILES["avatar-upload"]["name"])) {
             $modified_avatar = $this->user->avatar;
+            $this->alertMsg="Datos actualizados correctamente";
         }
         else {
             if($this->uploadAvatar()){
                 $modified_avatar=$_FILES["avatar-upload"]["name"];
+                $this->alertMsg="Datos actualizados correctamente";
             }
-            else
+            else{
                 $modified_avatar = "avatar.png";
+                $this->alertMsg="Ha habido un error subiendo el archivo";
+            }
         }
 
         $db = ConexionDB::getInstance();
