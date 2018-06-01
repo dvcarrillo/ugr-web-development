@@ -106,4 +106,22 @@ class User
 
         return $success;
     }
+
+    public static function modifyUser($name, $surname, $email, $password, $avatar, $id) {
+        $db = ConexionDB::getInstance();
+
+        $stmt = $db->prepare("UPDATE usuarios SET nombre=:nombre, apellidos=:apellidos, email=:email, clave=:clave, avatar=:avatar WHERE usuarios.id = :id");
+
+        $stmt->bindParam(':nombre',$name);
+        $stmt->bindParam(':apellidos',$surname);
+        $stmt->bindParam(':email',$email);
+        $stmt->bindParam(':clave',$password);
+        $stmt->bindParam(':avatar',$avatar);
+        $stmt->bindParam(':id',$id);
+
+        $success = $stmt->execute();
+
+        return $success;
+    }
+
 }

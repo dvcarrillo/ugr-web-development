@@ -38,9 +38,12 @@ class UserAreaController
             case 'registration':
                 require_once('views/user_area/registrationForm.php');
                 break;
-            case 'userarea':
+            case 'userarea':   
                 if (isset($_SESSION['user_name'])) {
                     require_once('views/user_area/userArea.php');
+                    if($_GET['option']=="modify"){
+                        $this->modifyUser();
+                    }
                 }
                 else {
                     $success = $this->processLogin();
@@ -158,6 +161,50 @@ class UserAreaController
         }
     }
 
+
+    private function uploadAvatar(){
+        $target_dir = "/opt/lampp/htdocs/proyectos/views/img/avatar/";//realpath(dirname(getcwd())) . "uploads/";
+        $target_file = $target_dir . basename($_FILES["avatar-upload"]["name"]);
+        $uploadOk = 1;
+        $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
+        // Check if image file is a actual image or fake image
+        if(isset($_POST["submit"])) {
+            $check = getimagesize($_FILES["avatar-upload"]["tmp_name"]);
+            if($check !== false) {
+                //echo "File is an image - " . $check["mime"] . ".";
+                $uploadOk = 1;
+            } else {
+                //echo "File is not an image.";
+                $uploadOk = 0;   
+            }
+        }
+        // Check if file already exists
+        if (file_exists($target_file)) {
+            //echo "Sorry, file already exists.";
+            $uploadOk = 0;
+        }
+        // Check file size
+        if ($_FILES["avatar-upload"]["size"] > 500000) {
+            //echo "Sorry, your file is too large.";
+            $uploadOk = 0;
+        }
+        // Check if $uploadOk is set to 0 by an error
+        if ($uploadOk == 0) {
+            //echo "Sorry, your file was not uploaded.";
+            return false;
+        // if everything is ok, try to upload file
+        } else {
+            echo(realpath(dirname(getcwd())));
+            if (move_uploaded_file($_FILES["avatar-upload"]["tmp_name"], $target_file)) {
+                //echo "The file ". basename( $_FILES["avatar-upload"]["name"]). " has been uploaded.";
+                return true;
+            } else {
+                //echo "Sorry, there was an error uploading your file.";
+                return false;
+            }
+        }
+    }
+
     private function modifyUser() {
         if ((!isset($_POST['name'])) || (!isset($_POST['email'])) || (!isset($_POST['password']))
             || (!isset($_POST['confirm-password']))) {
@@ -167,18 +214,36 @@ class UserAreaController
 
         $modified_name = $_POST['name'];
         $modified_surname = $_POST['surname'];
-        $modified_avatar = $_POST['avatar-upload'];
+        $modified_avatar = $_FILES["avatar-upload"]["name"];
         $modified_email = $_POST['email'];
         $modified_password = $_POST['password'];
         $modified_password_c = $_POST['confirm-password'];
 
-        if ($modified_avatar == "" || !isset($_POST['avatar-upload'])) {
-            $modified_avatar = "avatar.png";
+        if ($modified_avatar == "" || !isset($_FILES["avatar-upload"]["name"])) {
+            $modified_avatar = $this->user->avatar;
         }
         else {
-
+            if($this->uploadAvatar()){
+                $modified_avatar=$_FILES["avatar-upload"]["name"];
+            }
+            else
+                $modified_avatar = "avatar.png";
         }
 
+        $db = ConexionDB::getInstance();
+
+        $stmt = $db->prepare("UPDATE usuarios SET nombre=:nombre, apellidos=:apellidos, email=:email, clave=:clave, avatar=:avatar WHERE usuarios.id = :id");
+
+        $stmt->bindParam(':nombre',$modified_name);
+        $stmt->bindParam(':apellidos',$modified_surname);
+        $stmt->bindParam(':email',$modified_email);
+        $stmt->bindParam(':clave',$modified_password);
+        $stmt->bindParam(':avatar',$modified_avatar);
+        $stmt->bindParam(':id',$this->user->id);
+
+        $success = $stmt->execute();
+
+        return $success;
 
 
     }
