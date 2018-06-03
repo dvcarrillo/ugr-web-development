@@ -43,6 +43,7 @@ class User
         $this->avatar = $avatar;
     }
 
+
     public static function all() {
         $list = [];
         $db = ConexionDB::getInstance();
@@ -100,24 +101,6 @@ class User
         $stmt->bindParam(':clave',$password);
         $stmt->bindParam(':tipo',$type);
         $stmt->bindParam(':avatar',$avatar);
-
-        $success = $stmt->execute();
-
-        return $success;
-    }
-
-    public function modifyData($name, $surname, $email, $password, $avatar) {
-        $db = ConexionDB::getInstance();
-
-        $stmt = $db->prepare("UPDATE usuarios SET nombre=:nombre, apellidos=:apellidos, email=:email, 
-              clave=:clave, avatar=:avatar WHERE usuarios.id = :id");
-
-        $stmt->bindParam(':nombre',$name);
-        $stmt->bindParam(':apellidos',$surname);
-        $stmt->bindParam(':email',$email);
-        $stmt->bindParam(':clave',$password);
-        $stmt->bindParam(':avatar',$avatar);
-        $stmt->bindParam(':id',$this->id);
 
         $success = $stmt->execute();
 

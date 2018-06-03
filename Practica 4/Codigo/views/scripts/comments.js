@@ -13,6 +13,7 @@ let num_comments = 2;
 
 /** Se llama a esta funcion cuando se cargan todos los elementos de la pagina
 */
+/*
 window.onload = function () {
     console.log("Ventana cargada, hay " + num_comments + " comentarios!");
     num_comments = document.getElementById("num-comments").innerText;
@@ -21,7 +22,7 @@ window.onload = function () {
         num_comments = 0;
     }
 };
-
+*/
 /** Modifica el numero de comentarios mostrado en el boton
 */
 function updateNumComments() {
