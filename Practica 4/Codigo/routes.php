@@ -38,7 +38,7 @@ function call($option, $item) {
             break;   
         case 'print':
             require_once('controllers/article_controller.php');
-            $action = $option;
+            $action = 'print_article';
             $option = new ArticleController();
             break;
         case 'index':
@@ -51,17 +51,11 @@ function call($option, $item) {
             $action = $option;
             $option = new ArticleController();
             break;
-        case 'search':
-            require_once('search.php');
-
-            break;
     }
-    if($option!='search'){
-        $option->{ $action }();
-    }
+    $option->{ $action }();
 }
 
-$pagelist = ['index' , 'show', 'print', 'login', 'search'];
+$pagelist = ['index' , 'show', 'print', 'login'];
 
 // Check that the requested controller and action are both allowed
 // If someone tries to access something else he will be redirected to the error action of the pages controller

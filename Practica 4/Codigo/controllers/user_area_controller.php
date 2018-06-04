@@ -14,6 +14,7 @@ class UserAreaController
 
     public function __construct() {
         require_once('models/user.php');
+        require_once('models/user_type.php');
         $this->user = "";
     }
 
@@ -67,6 +68,17 @@ class UserAreaController
                     require_once('views/user_area/modifyDataForm.php');
                 else
                     require_once('views/pages/error.php');
+                break;
+            case 'modifytypes':
+                if(isset($_SESSION['user_type']) && ($_SESSION['user_type'] == 'superusuario')) {
+                    $user_types = UserType::all();
+                    $users = User::all();
+
+                    require_once('views/user_area/userAdministration.php');
+                }
+                else {
+                    require_once('views/pages/error.php');
+                }
                 break;
             default:
                 require_once('views/pages/error.php');
@@ -153,6 +165,10 @@ class UserAreaController
                     break;
                 case 'modify':
                     $this->modifyUser();
+                    $this->setUser();
+                    break;
+                case 'modify-permissions':
+                    $this->modifyUserPermissions();
                     break;
             }
         }
@@ -167,19 +183,101 @@ class UserAreaController
 
         $modified_name = $_POST['name'];
         $modified_surname = $_POST['surname'];
-        $modified_avatar = $_POST['avatar-upload'];
+        $modified_avatar = $this->user->avatar;
         $modified_email = $_POST['email'];
         $modified_password = $_POST['password'];
         $modified_password_c = $_POST['confirm-password'];
 
-        if ($modified_avatar == "" || !isset($_POST['avatar-upload'])) {
-            $modified_avatar = "avatar.png";
-        }
-        else {
-
+        if ($modified_password != $modified_password_c) {
+            $this->alertMsg = "Las claves no coinciden. Por favor, vuelva a intentarlo";
+            return false;
         }
 
+        if (isset($_FILES["avatar-upload"]["name"])) {
+            if ($_FILES["avatar-upload"]["name"] != "") {
+                if ($this->uploadAvatar()) {
+                    $modified_avatar = $_FILES["avatar-upload"]["name"];
+                }
+            }
+            else {
+                $modified_avatar = $this->user->avatar;
+            }
+        }
 
+        // Change data on user
+        $success = $this->user->modifyData($modified_name, $modified_surname, $modified_email, $modified_password, $modified_avatar);
 
+        if(!$success) {
+            $this->alertMsg = "Ha habido un problema modificando sus datos";
+            return false;
+        }
+
+        $_SESSION['user_name'] = $modified_name;
+        $_SESSION['user_surname'] = $modified_surname;
+        $_SESSION['user_password'] = $modified_password;
+        $_SESSION['user_email'] = $modified_email;
+        $_SESSION['user_type'] = $this->user->tipo;
+        $_SESSION['user_avatar'] = $modified_avatar;
+
+        $this->alertMsg = "Sus datos se han modificado correctamente";
+
+        return true;
+    }
+
+    private function modifyUserPermissions() {
+        if(!isset($_SESSION['user_type']) || ($_SESSION['user_type'] != 'superusuario')) {
+            $this->alertMsg = "Acceso no autorizado";
+            return false;
+        }
+
+        $user_id = $_GET['user'];
+        $new_permission = $_POST['new-permission'];
+
+        $success = User::modifyPermissions($user_id, $new_permission);
+
+        if ($success)
+            $this->alertMsg = "El nuevo permiso para el usuario " . $user_id . " es " . $new_permission;
+        else
+            $this->alertMsg = "Error al ajustar los permisos de usuario para el usuario " . $user_id;
+    }
+
+    private function uploadAvatar() {
+        $target_dir = 'views/img/avatar/';
+        $target_file = $target_dir . basename($_FILES['avatar-upload']['name']);
+        $uploadOk = true;
+
+        // Check if the file provided is an image
+        $check = getimagesize($_FILES["avatar-upload"]["tmp_name"]);
+        if($check !== false) {
+            $uploadOk = true;
+        } else {
+            $this->alertMsg = "El archivo subido no es una imagen";
+            $uploadOk = false;
+        }
+
+        // Check if file already exists
+        if (file_exists($target_file)) {
+            $this->alertMsg = "El archivo subido ya existe";
+            $uploadOk = false;
+        }
+
+        // Check file size
+        if ($_FILES["avatar-upload"]["size"] > 500000) {
+            $this->alertMsg = "El tamaño del archivo excede el límite permitido";
+            $uploadOk = false;
+        }
+
+        // Check if $uploadOk is set to 0 by an error
+        if ($uploadOk == false) {
+            $this->alertMsg = "Se ha producido un error y su fichero no se ha podido subir";
+            return $uploadOk;
+        } else {
+            if (move_uploaded_file($_FILES["avatar-upload"]["tmp_name"], $target_file)) {
+                return true;
+            } else {
+                $this->alertMsg = "Se ha producido un error y su fichero no se ha podido subir";
+                return false;
+            }
+        }
     }
 }

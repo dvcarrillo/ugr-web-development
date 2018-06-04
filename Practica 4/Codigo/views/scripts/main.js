@@ -13,7 +13,6 @@ let num_comments = 2;
 
 /** Se llama a esta funcion cuando se cargan todos los elementos de la pagina
 */
-/*
 window.onload = function () {
     console.log("Ventana cargada, hay " + num_comments + " comentarios!");
     num_comments = document.getElementById("num-comments").innerText;
@@ -22,7 +21,7 @@ window.onload = function () {
         num_comments = 0;
     }
 };
-*/
+
 /** Modifica el numero de comentarios mostrado en el boton
 */
 function updateNumComments() {
@@ -113,10 +112,6 @@ function showInfoBox(commentNumber, authorName, imageName) {
         document.getElementById("author-info-name").innerHTML = authorName;
         let imagePath = "views/img/avatar/" + imageName;
         document.getElementById("author-info-avatar").src = imagePath;
-        if (imageName == "avatar.png")
-            document.getElementById("author-info-subtitle").innerHTML = "Usuario invitado";
-        else
-            document.getElementById("author-info-subtitle").innerHTML = "Usuario registrado";
         element.style.top = (153 * (commentNumber - 1)) + "px";
         element.style.display = "inline-block";
     }
@@ -142,7 +137,13 @@ function addComment() {
         var month = MONTH_NAMES[date.getMonth()];
         var year = date.getFullYear();
         var time = date.toTimeString().split(' ')[0];
-        var date_string = " A las " + time + " el " + day + " de " + month + " de " + year;
+        var time_formatted;
+
+        for (let i = 0; i < time.length - 2; i++) {
+            time_formatted += time[i];
+        }
+
+        var date_string = " A las " + time_formatted + " el " + day + " de " + month + " de " + year;
 
         // Actualiza la vista con un nuevo bloque de comentario
         var new_comment =
@@ -188,4 +189,32 @@ function banWords(event){
     var char = event.which || event.keyCode;
     if (char == 32)
         censorBeep();
+}
+
+/** Muestra el formulario de edicion de comentario
+ */
+function displayEditCommentForm(id_comment) {
+    var lookfor = "edit-comment-form-" + id_comment;
+    var element = document.getElementById(lookfor);
+    if (element.style.display == "block")
+        element.style.display = "none";
+    else
+        element.style.display = "block";
+}
+
+/** Muestra el formulario de adicion/edicion de articulo
+ */
+function displayNewArticleForm() {
+    var element = document.getElementById("new-article");
+    if (element.style.display === "block")
+        element.style.display = "none";
+    else
+        element.style.display = "block";
+}
+function displayEditArticleForm() {
+    var element = document.getElementById("edit-article");
+    if (element.style.display === "block")
+        element.style.display = "none";
+    else
+        element.style.display = "block";
 }

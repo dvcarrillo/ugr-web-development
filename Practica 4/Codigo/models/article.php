@@ -47,7 +47,7 @@ class Article
         $this->day = $fecha[2];
         $this->contenido = $contenido;
         $this->imagen_principal = $imagen_principal;
-        $this->imagenes = explode(" ", $imagenes);
+        $this->imagenes = explode(" ", rtrim($imagenes));
         $this->pie_imagen = $pie_imagen;
     }
 
@@ -75,6 +75,67 @@ class Article
 
         return new Article($article['id'], $article['titulo'], $article['subtitulo'], $article['fecha'],
             $article['contenido'], $article['imagen_principal'], $article['imagenes'], $article['pie_imagen']);
+    }
+
+    public static function exists($id) {
+        $db = ConexionDB::getInstance();
+        $exists = false;
+
+        $result = $db->prepare('SELECT * FROM articulos WHERE id = :id');
+
+        $result->execute(array('id' => $id));
+        $articulo = $result->fetch();
+
+        if($articulo)
+            $exists = true;
+
+        return $exists;
+    }
+
+    public static function addNew($titulo, $subtitulo, $fecha, $contenido, $imagen_principal, $imagenes, $pie_imagen) {
+        $db = ConexionDB::getInstance();
+
+        $stmt = $db->prepare("INSERT INTO articulos (id, titulo, subtitulo, fecha, contenido, imagen_principal, imagenes, pie_imagen) 
+              VALUES (NULL, :titulo, :subtitulo, :fecha, :contenido, :imagen_principal, :imagenes, :pie_imagen)");
+
+        $stmt->bindParam(':titulo',$titulo);
+        $stmt->bindParam(':subtitulo',$subtitulo);
+        $stmt->bindParam(':fecha',$fecha);
+        $stmt->bindParam(':contenido',$contenido);
+        $stmt->bindParam(':imagen_principal',$imagen_principal);
+        $stmt->bindParam(':imagenes',$imagenes);
+        $stmt->bindParam(':pie_imagen',$pie_imagen);
+
+        $success = $stmt->execute();
+
+        return $success;
+    }
+
+    public static function modifyById($article_id, $titulo, $subtitulo, $contenido, $imagen_principal, $imagenes, $pie_imagen) {
+        $db = ConexionDB::getInstance();
+
+        $stmt = $db->prepare("UPDATE articulos SET titulo = :titulo, subtitulo = :subtitulo, contenido = :contenido,
+                imagen_principal = :imagen_principal, imagenes = :imagenes, pie_imagen = :pie_imagen WHERE articulos.id = :id_articulo");
+
+        $stmt->bindParam(':titulo',$titulo);
+        $stmt->bindParam(':subtitulo',$subtitulo);
+        $stmt->bindParam(':contenido',$contenido);
+        $stmt->bindParam(':imagen_principal',$imagen_principal);
+        $stmt->bindParam(':imagenes',$imagenes);
+        $stmt->bindParam(':pie_imagen',$pie_imagen);
+        $stmt->bindParam(':id_articulo',$article_id);
+
+        $success = $stmt->execute();
+
+        return $success;
+    }
+
+    public static function deleteById($article_id) {
+        $db = ConexionDB::getInstance();
+        $stmt = $db->prepare("DELETE FROM articulos WHERE articulos.id = :article_id");
+        $stmt->bindParam(':article_id', $article_id);
+        $success = $stmt->execute();
+        return $success;
     }
 }
 ?>
